@@ -20,8 +20,8 @@ class MobileApiController extends Controller
         return $this->locationService->location();
 
     }
-    public function getUserLocation(){
-        return $this->locationService->userLocation();
+    public function getUserLocation($userID){
+        return $this->locationService->userLocation($userID);
 
     }
 

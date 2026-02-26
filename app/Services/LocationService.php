@@ -4,18 +4,32 @@ namespace App\Services;
 
 use App\Models\Location;
 use App\Models\UserLocation;
+use App\Traits\APIResponseTrait;
 
 class LocationService
 {
-    public static function location()
+    use APIResponseTrait;
+    public function location()
     {
-        return Location::where('Status','=','Y')->get();
+        $data = Location::where('Status','=','Y')->get();
+        return $this->successResponse($data,'');
     }
 
-    public static function userLocation()
+    public function userLocation($userID)
     {
-        $data = UserLocation::select('Userlocation.*','m.Name')->join('UserManager as m','m.UserID','=','UserLocation.UserID')->get();
-        return $data;
+        $data = UserLocation::select('Userlocation.*','m.Name','l.LocationName','l.LocationShortName')
+            ->join('UserManager as m','m.UserID','=','UserLocation.UserID')
+            ->join('Location as l ','l.LocationCode','=','m.LocationCode')
+            ->where('UserID','=',$userID)
+            ->where('l.Status','=','Y')
+            ->get();
+        if ($data){
+            return $this->successResponse($data,'');
+        }else{
+            return $this->errorResponse($data,'No data found!');
+
+        }
+
     }
 
 
