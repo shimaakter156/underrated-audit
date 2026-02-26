@@ -17,13 +17,15 @@ class LocationService
 
     public function userLocation($userID)
     {
+
         $data = UserLocation::select('Userlocation.*','m.Name','l.LocationName','l.LocationShortName')
             ->join('UserManager as m','m.UserID','=','UserLocation.UserID')
-            ->join('Location as l ','l.LocationCode','=','m.LocationCode')
-            ->where('UserID','=',$userID)
+            ->join('Location as l ','l.LocationCode','=','UserLocation.LocationCode')
+            ->where('UserLocation.UserID','=',$userID)
             ->where('l.Status','=','Y')
             ->get();
-        if ($data){
+
+        if ($data->isNotEmpty()){
             return $this->successResponse($data,'');
         }else{
             return $this->errorResponse($data,'No data found!');
