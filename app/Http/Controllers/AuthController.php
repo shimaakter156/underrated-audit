@@ -89,7 +89,7 @@ class AuthController extends Controller
             return $this->respondWithToken($token);
         } else {
             return response()->json([
-                'status' => 'error',
+                'status' => 0,
                 'message' => 'Invalid Use ID or Password!'
             ],500);
         }
