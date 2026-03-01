@@ -19,6 +19,7 @@ class ProductService
            return $this->successResponse($data,'');
 
         } catch (\Exception $exception) {
+            return $this->errorResponse($exception->getMessage());
         }
     }
 }

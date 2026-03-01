@@ -28,7 +28,7 @@ class LocationService
         if ($data->isNotEmpty()){
             return $this->successResponse($data,'');
         }else{
-            return $this->errorResponse($data,'No data found!');
+            return $this->errorResponse('No data found!');
 
         }
 

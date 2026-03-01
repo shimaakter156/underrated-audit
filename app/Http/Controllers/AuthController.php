@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CurrentPeriod;
+use App\Http\Requests\StoreMarketPriceRequest;
 use App\Models\User;
-use App\Models\UserLog;
-use App\Services\AccessLog;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -96,18 +93,8 @@ class AuthController extends Controller
     }
 
 
-    public function register(Request $request)
+    public function register(StoreMarketPriceRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-            'designation' => 'required',
-            'email' => 'required',
-            'password' => 'required|string|min:6'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Invalid'], 400);
-        }
 
         try {
             $user = new User();
