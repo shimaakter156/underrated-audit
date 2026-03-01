@@ -27,10 +27,11 @@ class MarketPriceService
     public function store($request)
     {
         try {
+            $entryDate =today()->format('Y-m-d');
             $query = WholeSaleMarketRate::where('ProductCode','=',$request->ProductCode)
                 ->where('LocationCode','=',$request->LocationCode)
                 ->where('CreatedBy','=',Auth::user()->UserID)
-                ->where('EntryDate','=',today());
+                ->where('EntryDate','=',$entryDate);
             $dataExist = $query->first();
             if ($dataExist) {
                 WholeSaleMarketRateLog::create([
@@ -49,7 +50,7 @@ class MarketPriceService
 
                 $query->update([
                     'MarketPrice' => $request->MarketPrice,
-                    'EntryDate'   => $request->EntryDate,
+                    'EntryDate'   => $entryDate,
                     'Lat'         => $request->Lat,
                     'Long'        => $request->Long,
                     'UpdatedBy'   => Auth::user()->UserID,
@@ -63,7 +64,7 @@ class MarketPriceService
                     'ProductCode' => $request->ProductCode,
                     'CompanyPrice' => $request->CompanyPrice,
                     'MarketPrice' => $request->MarketPrice,
-                    'EntryDate' =>$request->EntryDate,
+                    'EntryDate' =>$entryDate,
                     'EntryAddress' => $request->EntryAddress,
                     'Lat' => $request->Lat,
                     'Long' => $request->Long,

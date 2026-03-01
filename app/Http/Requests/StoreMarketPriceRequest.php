@@ -30,7 +30,6 @@ class StoreMarketPriceRequest extends FormRequest
             'ProductCode'=>'required',
             'CompanyPrice'=>'required',
             'MarketPrice'=>'required',
-            'EntryDate'=>'required',
             'EntryAddress'=>'required',
             'Lat'=>'required',
             'Long'=>'required',
@@ -42,8 +41,7 @@ class StoreMarketPriceRequest extends FormRequest
      $errors = $validator->errors();
      throw new HttpResponseException(response()->json([
          'status'=>0,
-         'message' => 'Validation failed',
-         'errors' => $errors,
+         'message' => $errors->first(),
      ],422));
 
     }
