@@ -11,7 +11,7 @@
     <advanced-datatable :options="tableOptions">
       <template slot="action" slot-scope="row">
         <a href="javascript:" @click="addDeptModal(row.item)"> <i class="ti-pencil-alt"></i></a>
-        <a href="javascript:" @click="changePassword(row.item.StaffID)"> <i class="ti-lock"></i></a>
+        <a href="javascript:" @click="changePassword(row.item.UserID)"> <i class="ti-lock"></i></a>
       </template>
     </advanced-datatable>
     <add-edit-user @changeStatus="changeStatus" v-if="loading"/>
@@ -31,8 +31,8 @@ export default {
       tableOptions: {
         source: 'user/list',
         search: true,
-        slots: [9],
-        hideColumn: ['UserTypeID','UpdatedAt','UpdatedBy','Status'],
+        slots: [10],
+        hideColumn: ['UserTypeID','UpdatedAt','UpdatedBy','Status','LocationCode','LocationShortName'],
         slotsName: ['action'],
         sortable: [2],
         pages: [20, 50, 100],

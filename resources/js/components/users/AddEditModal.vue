@@ -26,7 +26,7 @@
                         <label for="name">Staff Name <span class="error">*</span></label>
                         <input type="text" class="form-control" :class="{'error-border': errors[0]}" id="name"
                                v-model="staffName" name="staff-name" placeholder="Staff Name"
-                               :disabled="actionType==='edit'" readonly>
+                               :disabled="actionType==='edit'">
                         <span class="error-message"> {{ errors[0] }}</span>
                       </div>
                     </ValidationProvider>
@@ -55,7 +55,7 @@
                     <ValidationProvider name="User Type" mode="eager" rules="required" v-slot="{ errors }">
                       <div class="form-group">
                         <label for="user-type">User Type <span class="error">*</span></label>
-                        <multiselect v-model="userType" :options="roles" :multiple="false" :close-on-select="true"
+                        <multiselect v-model="userType" :options="userTypes" :multiple="false" :close-on-select="true"
                                      :clear-on-select="false" :preserve-search="true" placeholder="Select User type"
                                      label="UserTypeName" track-by="UserTypeID" >
 
@@ -82,7 +82,7 @@
                       <div class="form-group">
                         <label for="name">Password <span class="error">*</span></label>
                         <input type="password" class="form-control" :class="{'error-border': errors[0]}" id="password"
-                               v-model="password" name="password" placeholder="Password">
+                               v-model="password" name="password" placeholder="Password" autocomplete="off">
                         <span class="error-message"> {{ errors[0] }}</span>
                       </div>
                     </ValidationProvider>
@@ -103,10 +103,10 @@
                   <div class="col-12">
                     <p class="font-weight-bold">Submenu Permission</p>
                   </div>
-                  <div class="col-12 col-md-6" v-for="(submenu,index) in filteredSubMenu" :key="index">
+                  <div class="col-12 col-md-6" v-for="(submenu,index) in allSubMenu" :key="index">
                       <div class="form-group">
                         <div class="form-check">
-                          <p>{{submenu.MenuName}}</p>
+                          <p> <u>{{submenu.MenuName}}</u></p>
                           <div v-for="(sub,index2) in submenu.all_sub_menus" :key="index2">
                             <input class="form-check-input" type="checkbox" :value="sub.SubMenuID" v-model="allSubMenuId" :id="'allSubMenu'+index">
                             <label class="form-check-label" :for="'allSubMenu'+index+'-'+index2">
@@ -153,7 +153,7 @@ export default {
       type: 'add',
       actionType: '',
       buttonShow: false,
-      roles: [],
+      userTypes: [],
       allSubMenu: [],
       filteredSubMenu: [],
       allSubMenuId: [],
@@ -169,18 +169,18 @@ export default {
         this.selectedBusiness = [];
         this.selectedDepartment = [];
         let instance = this;
-        this.axiosGet('user/get-user-info/'+row.StaffID,function(response) {
+        this.axiosGet('user/get-user-info/'+row.UserID,function(response) {
           var user = response.data;
           instance.title = 'Update User';
           instance.buttonText = "Update";
-          instance.staffName = user.StaffName;
-          instance.staffId = user.StaffID;
-          instance.mobile = user.Mobile;
+          instance.staffName = user.Name;
+          instance.staffId = user.UserID;
+          instance.mobile = user.PhoneNo;
           instance.email = user.Email;
           instance.status = user.Status;
           instance.userType = {
-            RoleName: user.roles.RoleName,
-            RoleID: user.roles.RoleID
+            UserTypeName: user.user_type.UserTypeName,
+            UserTypeID: user.user_type.UserTypeID
           };
           instance.buttonShow = true;
           instance.actionType = 'edit';
@@ -191,12 +191,13 @@ export default {
       } else {
         this.title = 'Add User';
         this.buttonText = "Add";
+        this.buttonShow = true;
         this.staffId = '';
         this.staffName = '';
         this.mobile = '';
         this.email = '';
         this.status = '1';
-        this.password = '';
+        this.password = null;
         this.userType = '';
         this.allSubMenu = [];
         this.actionType = 'add'
@@ -214,7 +215,7 @@ export default {
     getData() {
       let instance = this;
       this.axiosGet('user/modal',function (response) {
-        instance.roles = response.userTypes;
+        instance.userTypes = response.userTypes;
         instance.allSubMenu = response.allSubMenus;
         instance.filteredSubMenu = instance.checkSubMenus();
       },function (error) {
@@ -244,23 +245,6 @@ export default {
         this.errorNoti(error);
         this.$store.commit('submitButtonLoadingStatus', false);
       })
-    },
-
-    loadFromHR(e) {
-      var staffId = e.target.value;
-      let instance = this;
-      this.axiosGet('user/hr-data?staffId='+staffId,function (response){
-        if (response.data.length === 0) {
-          instance.staffName = ""
-          instance.buttonShow = false
-          instance.errorNoti('No staff found with this staff ID!')
-        } else {
-          instance.staffName = response.data.Name
-          instance.buttonShow = true
-        }
-      },function (error){
-
-      });
     },
 
   }

@@ -26,57 +26,60 @@ class MarketPriceService
     }
     public function store($request)
     {
-        try {
-            $entryDate =today()->format('Y-m-d');
-            $query = WholeSaleMarketRate::where('ProductCode','=',$request->ProductCode)
-                ->where('LocationCode','=',$request->LocationCode)
-                ->where('CreatedBy','=',Auth::user()->UserID)
-                ->where('EntryDate','=',$entryDate);
-            $dataExist = $query->first();
-            if ($dataExist) {
-                WholeSaleMarketRateLog::create([
-                    'WSMRID'       => $dataExist->WSMRID,
-                    'LocationCode' => $dataExist->LocationCode,
-                    'ProductCode'  => $dataExist->ProductCode,
-                    'CompanyPrice' => $dataExist->CompanyPrice,
-                    'MarketPrice'  => $dataExist->MarketPrice,
-                    'EntryDate'    => $dataExist->EntryDate,
-                    'EntryAddress' => $dataExist->EntryAddress,
-                    'Lat'          => $dataExist->Lat,
-                    'Long'         => $dataExist->Long,
-                    'CreatedBy'    => Auth::user()->UserID,
-                    'CreatedAt'    => Carbon::now()
-                ]);
 
-                $query->update([
-                    'MarketPrice' => $request->MarketPrice,
-                    'EntryDate'   => $entryDate,
-                    'Lat'         => $request->Lat,
-                    'Long'        => $request->Long,
-                    'UpdatedBy'   => Auth::user()->UserID,
-                    'UpdatedAt'   => Carbon::now()
-                ]);
+            $entryDate = today()->format('Y-m-d');
+            $userID    = Auth::user()->UserID;
+            $data      = [];
 
-                $data = $query->first();
-            }else{
-                $data =  WholeSaleMarketRate::create([
-                    'LocationCode' => $request->LocationCode,
-                    'ProductCode' => $request->ProductCode,
-                    'CompanyPrice' => $request->CompanyPrice,
-                    'MarketPrice' => $request->MarketPrice,
-                    'EntryDate' =>$entryDate,
-                    'EntryAddress' => $request->EntryAddress,
-                    'Lat' => $request->Lat,
-                    'Long' => $request->Long,
-                    'CreatedBy' => Auth::user()->UserID,
-                    'CreatedAt' => Carbon::now()
-                ]);
+            foreach ($request->products as $item) {
+                $existing = WholeSaleMarketRate::where('ProductCode',  $item['ProductCode'])
+                    ->where('LocationCode', $request->LocationCode)
+                    ->where('CreatedBy',    $userID)
+                    ->where('EntryDate',    $entryDate)
+                    ->first();
 
+                if ($existing) {
+                    WholeSaleMarketRateLog::create([
+                        'WSMRID'       => $existing->WSMRID,
+                        'LocationCode' => $existing->LocationCode,
+                        'ProductCode'  => $existing->ProductCode,
+                        'CompanyPrice' => $existing->CompanyPrice,
+                        'MarketPrice'  => $existing->MarketPrice,
+                        'EntryDate'    => $existing->EntryDate,
+                        'EntryAddress' => $existing->EntryAddress,
+                        'Lat'          => $existing->Lat,
+                        'Long'         => $existing->Long,
+                        'CreatedBy'    => $userID,
+                        'CreatedAt'    => Carbon::now()
+                    ]);
+
+                    $existing->update([
+                        'MarketPrice' => $item['MarketPrice'],
+                        'EntryDate'   => $entryDate,
+                        'Lat'         => $request->Lat,
+                        'Long'        => $request->Long,
+                        'UpdatedBy'   => $userID,
+                        'UpdatedAt'   => Carbon::now()
+                    ]);
+
+                    $data[] = $existing->fresh();
+                } else {
+                    $data[] = WholeSaleMarketRate::create([
+                        'LocationCode' => $request->LocationCode,
+                        'ProductCode'  => $item['ProductCode'],
+                        'CompanyPrice' => $item['CompanyPrice'],
+                        'MarketPrice'  => $item['MarketPrice'],
+                        'EntryDate'    => $entryDate,
+                        'EntryAddress' => $request->EntryAddress,
+                        'Lat'          => $request->Lat,
+                        'Long'         => $request->Long,
+                        'CreatedBy'    => $userID,
+                        'CreatedAt'    => Carbon::now()
+                    ]);
+                }
             }
 
-        return $data;
-        } catch (\Exception $exception) {
-            return $this->errorResponse($exception->getMessage());
-        }
+            return $data;
     }
+
 }

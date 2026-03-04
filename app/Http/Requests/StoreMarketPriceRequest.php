@@ -27,9 +27,7 @@ class StoreMarketPriceRequest extends FormRequest
     {
         return [
             'LocationCode'=>'required',
-            'ProductCode'=>'required',
-            'CompanyPrice'=>'required',
-            'MarketPrice'=>'required',
+            'products'=>'required',
             'EntryAddress'=>'required',
             'Lat'=>'required',
             'Long'=>'required',

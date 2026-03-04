@@ -141,18 +141,6 @@ class AuthController extends Controller
 
     protected function respondWithToken($token)
     {
-//        $check_time_period = CurrentPeriod::where('StaffID',Auth::user()->StaffID)->first();
-//        if(empty($check_time_period)){
-//            $today_set_period = new CurrentPeriod();
-//            $today_set_period->Period = date("Y-m-d");
-//            $today_set_period->StaffID = Auth::user()->StaffID;
-//            $today_set_period->save();
-//        }
-//        else{
-//            $check_time_period->Period = date("Y-m-d");
-//            $check_time_period->StaffID = Auth::user()->StaffID;
-//            $check_time_period->save();
-//        }
         return response()->json([
             'status'=>1,
             'access_token' => $token,

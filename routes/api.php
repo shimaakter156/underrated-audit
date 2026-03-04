@@ -26,7 +26,7 @@ Route::group(['middleware' => ['jwt:api']], function () {
     Route::get('encoded-result/{param}',[CommonController::class,'encode']);
     Route::get('decoded-result/{param}',[CommonController::class,'decode']);
 
-    // ADMIN USERS
+
     Route::group(['prefix' => 'user'],function () {
         Route::post('add', [UserController::class, 'store']);
         Route::post('update', [UserController::class, 'update']);

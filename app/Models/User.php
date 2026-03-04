@@ -26,29 +26,15 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at' => 'datetime',
     ];
 
+
     public function userType(){
         return $this->hasOne(UserType::class,'UserTypeID','UserTypeID');
     }
-    public function roles()
-    {
-        return $this->hasOne(Role::class,'RoleID','RoleID');
-    }
 
-    public function userBusiness()
-    {
-        return $this->hasMany(UserBusiness::class,'StaffID','StaffID');
-    }
 
-    public function userDepartment()
-    {
-        return $this->hasMany(UserDepartment::class,'StaffID','StaffID');
-    }
 
-    public function business()
-    {
-        return $this->belongsTo(Business::class,'Business','Business');
-    }
-    
+
+
     public function userSubmenu()
     {
         return $this->hasMany(SubMenuPermission::class,'UserID','StaffID');

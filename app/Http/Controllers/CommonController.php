@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Location;
 use App\Models\Menu;
 use App\Models\UserType;
-use App\Services\BusinessService;
-use App\Services\DepartmentService;
-use App\Services\RoleService;
 
 class CommonController extends Controller
 {

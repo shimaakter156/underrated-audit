@@ -28,8 +28,12 @@ class MobileApiController extends Controller
         return $data;
     }
     public function store(StoreMarketPriceRequest $request){
-        $data =  $this->marketPriceService->store($request);
-        return $this->successResponse($data,'Successfully Stored!');
+        try{
+            $data =  $this->marketPriceService->store($request);
+            return $this->successResponse($data,'Successfully Stored!');
+         } catch (\Exception $exception) {
+         return $this->errorResponse($exception->getMessage());
+        }
     }
 
 
