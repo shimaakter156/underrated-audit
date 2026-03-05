@@ -12,16 +12,27 @@ class MarketPriceService
 {
     use APIResponseTrait;
 
-    public function getMarketPriceList($userID){
-        $data = WholeSaleMarketRate::join('UserManager as um ','um.UserID','=','WholeSaleMarketRate.CreatedBy')
+    public function getMarketPriceList($data){
+
+        $location =$data['location'];
+        $fromDate=$data['fromDate'];
+        $toDate =$data['toDate'];
+        $userID=$data['userID'];
+        $query = WholeSaleMarketRate::join('UserManager as um ','um.UserID','=','WholeSaleMarketRate.CreatedBy')
             ->join('Product as p','p.ProductCode','=','WholeSaleMarketRate.ProductCode')
             ->join('Location as l ','l.LocationCode','=','WholeSaleMarketRate.LocationCode')
             ->where('um.UserTypeID','=',3)
             ->select('WholeSaleMarketRate.*','p.ProductName','l.LocationName','um.Name')
             ->where('WholeSaleMarketRate.CreatedBy','=',$userID)
+            ->when(!empty($fromDate) && !empty($toDate), function ($query) use ($fromDate, $toDate) {
+                 $query->whereBetween('EntryDate', [$fromDate, $toDate]);
+            })
+            ->when(!empty($location), function ($query) use ($location) {
+                 $query->where('WholeSaleMarketRate.LocationCode', $location);
+            })
             ->orderBy('CreatedAt','desc')
             ->get();
-        return $this->successResponse($data,'');
+        return $this->successResponse($query,'');
 
     }
     public function store($request)
@@ -67,7 +78,7 @@ class MarketPriceService
                     $data[] = WholeSaleMarketRate::create([
                         'LocationCode' => $request->LocationCode,
                         'ProductCode'  => $item['ProductCode'],
-                        'CompanyPrice' => $item['CompanyPrice'],
+                        'CompanyPrice' => $item['CompanyRate'],
                         'MarketPrice'  => $item['MarketPrice'],
                         'EntryDate'    => $entryDate,
                         'EntryAddress' => $request->EntryAddress,

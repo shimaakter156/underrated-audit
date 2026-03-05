@@ -15,9 +15,10 @@ class UserService
     use  APIResponseTrait;
 
 
-    public function storeUser(Request $request,$newUserID,$userTypeID){
+    public function storeUser(Request $request,$newUserID,$userTypeID,$locationCode){
 
-        dd($newUserID,$userTypeID);
+        dd($newUserID,$userTypeID,$locationCode);
+        $selectedSubMenu =$request->selectedSubMenu;
         DB::beginTransaction();
         $user = new User();
         $user->UserID = $newUserID;
@@ -31,18 +32,25 @@ class UserService
         $user->CreatedBy = Auth::user()->UserID;
         $user->CreatedAt = Carbon::now()->format('Y-m-d H:i:s');
         $user->save();
+        $this->menuAdd($selectedSubMenu,$newUserID);
+
+
+        DB::commit();
+        return $this->successResponseWeb(null,'User Created Successfully',201);
+
+    }
+
+    public function menuAdd($selectedSubMenu,$newUserID){
         $submenus = [];
-        foreach ($request->selectedSubMenu as $row) {
+        foreach ($selectedSubMenu as $row) {
             $submenus[] = [
                 'UserID' => $newUserID,
                 'SubMenuID' => $row
             ];
         }
         SubMenuPermission::insert($submenus);
-        DB::commit();
-        return $this->successResponseWeb(null,'User Created Successfully',201);
-
     }
+
     public function userExist($userID){
         if (User::where('UserID', $userID)->exists()) {
             return $this->errorResponseWeb('User already exists.',409);

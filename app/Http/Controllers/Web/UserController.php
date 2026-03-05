@@ -44,9 +44,20 @@ class UserController extends Controller
 
             $staffID =$request->staffId;
             $userTypeID = $request->userType['UserTypeID'];
+            $location = $request->location;
             $this->userService->userExist($staffID);
+            if (!empty($location)){
+                $locationCodes = array_column($location,'LocationCode');
+                foreach ($locationCodes as $key){
+                    $newUserID = $this->userService->generateUserID($userTypeID,$staffID);
+                    $this->userService->storeUser($request,$newUserID,$userTypeID,$key);
+                }
+            }
+
             $newUserID = $this->userService->generateUserID($userTypeID,$staffID);
-            $this->userService->storeUser($request,$newUserID,$userTypeID);
+
+
+            $this->userService->storeUser($request,$userTypeID,$locationCodes);
         } catch (\Exception $exception) {
             DB::rollBack();
             return $this->errorResponseWeb($exception->getMessage() . '-' . $exception->getLine(),500);

@@ -9,12 +9,14 @@
           <ValidationObserver v-slot="{ handleSubmit }">
             <form class="form-horizontal" id="form" @submit.prevent="handleSubmit(onSubmit)">
               <div class="modal-body">
+                <!-- Hidden username field for accessibility -->
+                <input type="text" name="username" autocomplete="username" style="display:none">
                 <div class="row">
                   <div class="col-12 col-md-6">
                     <ValidationProvider name="New Password" mode="eager" rules="required" v-slot="{ errors }">
                       <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" class="form-control" :class="{'error-border': errors[0]}" id="password" v-model="password" name="password" placeholder="Password">
+                        <input type="password" class="form-control" :class="{'error-border': errors[0]}" id="password" v-model="password" name="password" placeholder="Password" autocomplete="new-password">
                         <span class="error-message"> {{ errors[0] }}</span>
                       </div>
                     </ValidationProvider>
@@ -23,7 +25,7 @@
                     <ValidationProvider name="Confirm Password" mode="eager" rules="required|confirmed:New Password" v-slot="{ errors }">
                       <div class="form-group">
                         <label for="confirm">Confirm Password</label>
-                        <input type="password" class="form-control" :class="{'error-border': errors[0]}" id="confirm" v-model="confirm" name="confirm_password" placeholder="Confirm Password">
+                        <input type="password" class="form-control" :class="{'error-border': errors[0]}" id="confirm" v-model="confirm" name="confirm_password" placeholder="Confirm Password" autocomplete="new-password">
                         <span class="error-message"> {{ errors[0] }}</span>
                       </div>
                     </ValidationProvider>

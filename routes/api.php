@@ -18,7 +18,7 @@ Route::group(['middleware' => 'jwt:api'], function () {
     Route::post('get-user-location-list/{userId}',[MobileApiController::class,'getUserLocation']);
     Route::get('get-product-list',[MobileApiController::class,'getProduct']);
     Route::post('store-market-price',[MobileApiController::class,'store']);
-    Route::get('get-wholesale-market-price-list',[MobileApiController::class,'index']);
+    Route::get('get-wholesale-market-price-list',[MobileApiController::class,'getMarketPrice']);
 
 });
 

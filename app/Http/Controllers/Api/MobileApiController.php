@@ -22,10 +22,20 @@ class MobileApiController extends Controller
         $this->productService = $productService;
         $this->marketPriceService = $marketPriceService;
     }
-    public function index(){
+    public function getMarketPrice(Request $request){
+
         $userID = Auth::user()->UserID;
-        $data = $this->marketPriceService->getMarketPriceList($userID);
-        return $data;
+        $from = $request->fromDate;
+        $to = $request->toDate;
+        $location = $request->locationCode;
+        $data =[
+            'userID'=>$userID,
+            'fromDate'=>$from,
+            'toDate'=>$to,
+            'location'=>$location
+        ];
+        $service = $this->marketPriceService->getMarketPriceList($data);
+        return $service;
     }
     public function store(StoreMarketPriceRequest $request){
         try{
