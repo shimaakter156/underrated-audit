@@ -15,13 +15,13 @@ class MarketPriceService
     public function getMarketPriceList($data){
 
         $location =$data['location'];
-        $fromDate=$data['fromDate'];
-        $toDate =$data['toDate'];
-        $userID=$data['userID'];
+        $fromDate =$data['fromDate'];
+        $toDate   =$data['toDate'];
+        $userID   =$data['userID'];
         $query = WholeSaleMarketRate::join('UserManager as um ','um.UserID','=','WholeSaleMarketRate.CreatedBy')
             ->join('Product as p','p.ProductCode','=','WholeSaleMarketRate.ProductCode')
             ->join('Location as l ','l.LocationCode','=','WholeSaleMarketRate.LocationCode')
-            ->where('um.UserTypeID','=',3)
+            ->where('um.UserTypeID','=','3')
             ->select('WholeSaleMarketRate.*','p.ProductName','l.LocationName','um.Name')
             ->where('WholeSaleMarketRate.CreatedBy','=',$userID)
             ->when(!empty($fromDate) && !empty($toDate), function ($query) use ($fromDate, $toDate) {
@@ -40,6 +40,8 @@ class MarketPriceService
 
             $entryDate = today()->format('Y-m-d');
             $userID    = Auth::user()->UserID;
+            $staffID   = Auth::user()->StaffID;
+
             $data      = [];
 
             foreach ($request->products as $item) {
@@ -60,7 +62,8 @@ class MarketPriceService
                         'EntryAddress' => $existing->EntryAddress,
                         'Lat'          => $existing->Lat,
                         'Long'         => $existing->Long,
-                        'CreatedBy'    => $userID,
+                        'CreatedBy'    => $existing->CreatedBy,
+                        'CreatedByStaffID'    => $existing->CreatedByStaffID,
                         'CreatedAt'    => Carbon::now()
                     ]);
 
@@ -70,6 +73,7 @@ class MarketPriceService
                         'Lat'         => $request->Lat,
                         'Long'        => $request->Long,
                         'UpdatedBy'   => $userID,
+                        'UpdatedByStaffID'   => $staffID,
                         'UpdatedAt'   => Carbon::now()
                     ]);
 
@@ -85,6 +89,7 @@ class MarketPriceService
                         'Lat'          => $request->Lat,
                         'Long'         => $request->Long,
                         'CreatedBy'    => $userID,
+                        'CreatedByStaffID'    => $staffID,
                         'CreatedAt'    => Carbon::now()
                     ]);
                 }

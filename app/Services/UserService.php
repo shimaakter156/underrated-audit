@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\SubMenuPermission;
 use App\Models\User;
+use App\Models\UserLocation;
 use App\Traits\APIResponseTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -15,11 +16,11 @@ class UserService
     use  APIResponseTrait;
 
 
-    public function storeUser(Request $request,$newUserID,$userTypeID,$locationCode){
+    public function storeUser(Request $request,$newUserID,$userTypeID){
 
-        dd($newUserID,$userTypeID,$locationCode);
+
         $selectedSubMenu =$request->selectedSubMenu;
-        DB::beginTransaction();
+
         $user = new User();
         $user->UserID = $newUserID;
         $user->StaffID = $request->staffId;
@@ -32,12 +33,21 @@ class UserService
         $user->CreatedBy = Auth::user()->UserID;
         $user->CreatedAt = Carbon::now()->format('Y-m-d H:i:s');
         $user->save();
-        $this->menuAdd($selectedSubMenu,$newUserID);
+        if ($selectedSubMenu){
+            $this->menuAdd($selectedSubMenu,$newUserID);
+        }
+        return $user;
 
+    }
+    public function insertUserLocation($location, $newUserID) {
+        $userLocations = array_map(function ($loc) use ($newUserID) {
+            return [
+                'UserID' => $newUserID,
+                'LocationCode' => $loc['LocationCode']
+            ];
+        }, $location);
 
-        DB::commit();
-        return $this->successResponseWeb(null,'User Created Successfully',201);
-
+        UserLocation::insert($userLocations);
     }
 
     public function menuAdd($selectedSubMenu,$newUserID){
@@ -58,7 +68,8 @@ class UserService
     }
 
     public function generateUserID($userTypeID,$staffID){
-        if ($userTypeID===3){
+
+        if ($userTypeID==='3'){
             $user =  User::where('UserTypeID','=',$userTypeID)->orderby('UserID','DESC')->first();
             $prev = $user->UserID;
             $nextUserID = 'SR'.(explode('SR',$prev)[1]+1);
@@ -73,10 +84,9 @@ class UserService
     {
         $take = $request->take;
         $search = $request->search;
+
         $query = User::join('UserType', 'UserType.UserTypeID', 'UserManager.UserTypeID')
-            ->leftjoin('UserLocation','UserLocation.UserID','=','UserManager.UserID')
-            ->leftjoin('Location','Location.LocationCode','=','UserLocation.LocationCode')
-                -> where(function ($q) use ($search) {
+            ->where(function ($q) use ($search) {
                 $q->where('Name', 'like', '%' . $search . '%');
                 $q->orWhere('StaffID', 'like', '%' . $search . '%');
                 $q->orWhere('Email', 'like', '%' . $search . '%');
@@ -84,17 +94,26 @@ class UserService
             })
             ->where('UserManager.UserTypeID', '!=', '1')
             ->orderBy('StaffID', 'desc')
-            ->select(
-                'UserManager.*',
-                'UserType.UserTypeName',
-                'Location.LocationName'
-            );
+            ->select('UserManager.*', 'UserType.UserTypeName');
 
         if ($request->type === 'export') {
-            return response()->json([
-                'data' => $query->get()
-            ]);
+            $users = $query->get();
+        } else {
+            $users = $query->paginate($take);
         }
-        return $query->paginate($take);
+
+        $users->getCollection()->transform(function ($user) {
+            $data = DB::table('UserLocation')
+                ->join('Location', 'Location.LocationCode', '=', 'UserLocation.LocationCode')
+                ->where('UserLocation.UserID', $user->UserID)
+                ->select('Location.LocationCode', 'Location.LocationName')
+                ->get();
+
+            $user->locations = implode(',', $data->pluck('LocationName')->toArray());
+
+            return $user;
+        });
+
+        return response()->json($users);
     }
 }

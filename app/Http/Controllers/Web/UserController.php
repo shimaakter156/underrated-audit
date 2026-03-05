@@ -45,19 +45,16 @@ class UserController extends Controller
             $staffID =$request->staffId;
             $userTypeID = $request->userType['UserTypeID'];
             $location = $request->location;
+            DB::beginTransaction();
             $this->userService->userExist($staffID);
-            if (!empty($location)){
-                $locationCodes = array_column($location,'LocationCode');
-                foreach ($locationCodes as $key){
-                    $newUserID = $this->userService->generateUserID($userTypeID,$staffID);
-                    $this->userService->storeUser($request,$newUserID,$userTypeID,$key);
-                }
-            }
-
             $newUserID = $this->userService->generateUserID($userTypeID,$staffID);
 
-
-            $this->userService->storeUser($request,$userTypeID,$locationCodes);
+           $data = $this->userService->storeUser($request,$newUserID,$userTypeID);
+            if (!empty($location)){
+              $this->userService->insertUserLocation($location,$newUserID);
+            }
+            DB::commit();
+            return $this->successResponseWeb($data,'User Created Successfully',201);
         } catch (\Exception $exception) {
             DB::rollBack();
             return $this->errorResponseWeb($exception->getMessage() . '-' . $exception->getLine(),500);

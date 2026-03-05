@@ -43,13 +43,11 @@ const routes = [
         component: Main,
         redirect: {name: 'Dashboard'},
         children: [
-            //COMMON ROUTE | SHOW DASHBOARD DATA
             {
                 path: baseurl + 'dashboard',
                 name: 'Dashboard',
                 component: Dashboard
             },
-            //ADMIN ROUTE | SHOW USER LIST
             {
                 path: baseurl + 'users',
                 name: 'Users',
